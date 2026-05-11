@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: memora-birthday-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEB_APP_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REMINDER_CRON
+        value: 0 9 * * *
+      - key: TIMEZONE
+        value: Europe/Moscow
