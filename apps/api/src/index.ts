@@ -16,11 +16,6 @@ app.use(cors());
 app.use(express.json());
 app.use(router);
 
-app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(error);
-  res.status(500).json({ error: 'Internal server error' });
-});
-
 app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
@@ -40,6 +35,11 @@ if (webDist) {
 } else {
   console.warn('Mini App static files not found. Run npm.cmd run build before exposing API port 3000.');
 }
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(error);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 await migrate();
 
