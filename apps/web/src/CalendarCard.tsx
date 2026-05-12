@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
-import { birthdaysOnDate, buildCalendarDays, formatMonth } from './date';
+import { birthdaysOnDate, buildCalendarDays, daysUntil, formatMonth } from './date';
 import type { Birthday } from './types';
 
 type CalendarCardProps = {
@@ -37,11 +37,12 @@ export function CalendarCard({ birthdays, month, onMonthChange, onEditBirthday }
         {buildCalendarDays(month).map((cell) => {
           const items = birthdaysOnDate(birthdays, cell.date);
           const isToday = new Date().toDateString() === cell.date.toDateString();
+          const isWarmEvent = items.some((birthday) => daysUntil(birthday.birth_date) <= 14);
 
           return (
             <button
               key={cell.key}
-              className={`calendar-day ${cell.inMonth ? '' : 'muted'} ${isToday ? 'today' : ''} ${items.length ? 'has-event' : ''}`}
+              className={`calendar-day ${cell.inMonth ? '' : 'muted'} ${isToday ? 'today' : ''} ${items.length ? 'has-event' : ''} ${isWarmEvent ? 'warm-event' : ''}`}
               onClick={items[0] ? () => onEditBirthday(items[0]) : undefined}
             >
               <span>{cell.day}</span>
