@@ -63,6 +63,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
   me: () => request<Me>('/api/me'),
   birthdays: () => request<{ birthdays: Birthday[] }>('/api/birthdays'),
+  sendTestReminder: () =>
+    request<{ ok: true }>('/test-reminder', {
+      method: 'POST'
+    }),
   createBirthday: (payload: BirthdayForm) =>
     request<{ birthday: Birthday }>('/api/birthdays', {
       method: 'POST',

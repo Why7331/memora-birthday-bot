@@ -15,7 +15,29 @@ const birthdaySchema = z.object({
   gift_idea: z.string().trim().max(500).optional().nullable()
 });
 
+async function sendTestReminder(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) {
+  try {
+    if (!bot || !req.currentUser?.telegram_id) {
+      return res.status(503).json({ error: 'Не удалось отправить тестовое напоминание' });
+    }
+
+    const chatId = Number(req.currentUser.telegram_id);
+    await sendBotTyping(chatId);
+    await bot.telegram.sendMessage(
+      chatId,
+      '🎂 Сегодня день рождения у Мама\n\nОн/Она ждёт вашего внимания.\nНе забудьте поздравить ✨'
+    );
+
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+}
+
+router.post('/test-reminder', requireTelegramUser, sendTestReminder);
 router.use('/api', requireTelegramUser);
+
+router.post('/api/test-reminder', sendTestReminder);
 
 router.get('/api/me', (req, res) => {
   res.json({ user: req.currentUser });

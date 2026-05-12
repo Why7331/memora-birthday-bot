@@ -1,5 +1,6 @@
-import { Gift, MoreHorizontal, Search, Sparkles } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { BellRing, Gift, MoreHorizontal, Search, Sparkles } from 'lucide-react';
+import type { Ref } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AddRelativeModal } from './AddRelativeModal';
 import { AnimatedLiquidBackground } from './AnimatedLiquidBackground';
 import { BottomNavigation, type AppTab } from './BottomNavigation';
@@ -62,6 +63,36 @@ function getDayWord(days: number) {
   return 'дней';
 }
 
+const isTestReminderEnabled = import.meta.env.VITE_ENABLE_TEST_REMINDER === 'true';
+
+type ToastState = {
+  text: string;
+  tone: 'success' | 'error';
+} | null;
+
+function MoreMenu({
+  isOpen,
+  isSending,
+  menuRef,
+  onSendTestReminder
+}: {
+  isOpen: boolean;
+  isSending: boolean;
+  menuRef: Ref<HTMLDivElement>;
+  onSendTestReminder: () => void;
+}) {
+  if (!isOpen || !isTestReminderEnabled) return null;
+
+  return (
+    <div className="glass-dropdown" ref={menuRef}>
+      <button className="glass-dropdown-item" onClick={onSendTestReminder} disabled={isSending}>
+        <BellRing size={18} />
+        <span>{isSending ? 'Отправляю...' : 'Тестовое напоминание'}</span>
+      </button>
+    </div>
+  );
+}
+
 export function App() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [month, setMonth] = useState(() => new Date());
@@ -75,6 +106,11 @@ export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [isSendingTestReminder, setIsSendingTestReminder] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
+  const moreMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const tg = getTelegramWebApp();
@@ -102,6 +138,26 @@ export function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    if (!isMoreMenuOpen) return;
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (moreMenuRef.current?.contains(target) || moreButtonRef.current?.contains(target)) return;
+      setIsMoreMenuOpen(false);
+    };
+
+    window.addEventListener('pointerdown', closeOnOutsideClick);
+    return () => window.removeEventListener('pointerdown', closeOnOutsideClick);
+  }, [isMoreMenuOpen]);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timeoutId = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
 
   const upcoming = useMemo(
     () => [...birthdays].sort((a, b) => daysUntil(a.birth_date) - daysUntil(b.birth_date)).slice(0, 5),
@@ -187,6 +243,21 @@ export function App() {
     await loadBirthdays();
   }
 
+  async function sendTestReminder() {
+    setIsMoreMenuOpen(false);
+    setIsSendingTestReminder(true);
+
+    try {
+      await api.sendTestReminder();
+      setToast({ text: 'Тестовое напоминание отправлено', tone: 'success' });
+    } catch (requestError) {
+      if (import.meta.env.DEV) console.error(requestError);
+      setToast({ text: 'Не удалось отправить тестовое напоминание', tone: 'error' });
+    } finally {
+      setIsSendingTestReminder(false);
+    }
+  }
+
   return (
     <main className="app-shell min-h-screen overflow-hidden text-white">
       <AnimatedLiquidBackground />
@@ -202,11 +273,28 @@ export function App() {
             <button className="round-action" aria-label="Поиск">
               <Search size={23} />
             </button>
-            <button className="round-action" aria-label="Меню">
-              <MoreHorizontal size={25} />
-            </button>
+            <div className="more-menu-anchor">
+              <button
+                className="round-action"
+                ref={moreButtonRef}
+                aria-expanded={isMoreMenuOpen}
+                aria-haspopup="menu"
+                aria-label="Меню"
+                onClick={() => setIsMoreMenuOpen((current) => !current)}
+              >
+                <MoreHorizontal size={25} />
+              </button>
+              <MoreMenu
+                isOpen={isMoreMenuOpen}
+                isSending={isSendingTestReminder}
+                menuRef={moreMenuRef}
+                onSendTestReminder={sendTestReminder}
+              />
+            </div>
           </div>
         </header>
+
+        {toast && <div className={`toast-message toast-${toast.tone}`}>{toast.text}</div>}
 
         {error && <p className="soft-notice soft-notice-error">{error}</p>}
 
