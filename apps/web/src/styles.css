@@ -198,6 +198,7 @@ button {
 }
 
 .top-bar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -246,6 +247,40 @@ button {
   background: #76ecff;
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
   filter: drop-shadow(0 0 8px rgba(118, 236, 255, 0.95));
+}
+
+.brand-signature {
+  position: absolute;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  max-width: 150px;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.brand-signature strong,
+.brand-signature span {
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand-signature strong {
+  color: rgba(244, 250, 255, 0.94);
+  font-size: 14px;
+  font-weight: 780;
+}
+
+.brand-signature span {
+  color: #67e7ff;
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0;
+  text-shadow: 0 0 12px rgba(103, 231, 255, 0.56);
 }
 
 .top-actions {
@@ -917,6 +952,18 @@ textarea {
 }
 
 @media (max-width: 370px) {
+  .brand-signature {
+    max-width: 112px;
+  }
+
+  .brand-signature strong {
+    font-size: 12px;
+  }
+
+  .brand-signature span {
+    font-size: 10px;
+  }
+
   .top-actions {
     gap: 10px;
   }

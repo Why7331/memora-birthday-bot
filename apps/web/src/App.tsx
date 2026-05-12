@@ -38,7 +38,6 @@ export function App() {
   const [form, setForm] = useState<BirthdayForm>(emptyForm);
   const [yearKnown, setYearKnown] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [softNotice, setSoftNotice] = useState('');
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
 
@@ -82,13 +81,11 @@ export function App() {
   async function loadBirthdays() {
     try {
       setError('');
-      setSoftNotice('');
       const response = await api.birthdays();
       setBirthdays(response.birthdays);
     } catch (requestError) {
       if (isTelegramAuthError(requestError)) {
         if (import.meta.env.DEV) console.error(requestError);
-        setSoftNotice('Откройте приложение через Telegram');
       } else {
         setError(requestError instanceof Error ? requestError.message : 'Не удалось загрузить данные');
       }
@@ -162,6 +159,10 @@ export function App() {
             <span>M</span>
             <i />
           </div>
+          <div className="brand-signature" aria-label="Memora signature">
+            <strong>@memorahqbot</strong>
+            <span>NTNQ X CODEX</span>
+          </div>
           <div className="top-actions">
             <button className="round-action" aria-label="Поиск">
               <Search size={23} />
@@ -172,8 +173,7 @@ export function App() {
           </div>
         </header>
 
-        {softNotice && <p className="soft-notice">{softNotice}</p>}
-        {error && !softNotice && <p className="soft-notice soft-notice-error">{error}</p>}
+        {error && <p className="soft-notice soft-notice-error">{error}</p>}
 
         {activeTab === 'calendar' ? (
           <div className="screen-stack">
