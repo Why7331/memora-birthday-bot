@@ -1,8 +1,10 @@
-import { Gift, MoreHorizontal, Search, Trash2, X } from 'lucide-react';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Gift, MoreHorizontal, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AddRelativeModal } from './AddRelativeModal';
 import { AnimatedLiquidBackground } from './AnimatedLiquidBackground';
 import { BottomNavigation, type AppTab } from './BottomNavigation';
 import { CalendarCard } from './CalendarCard';
+import { LogoAvatar } from './LogoAvatar';
 import { UpcomingCard } from './UpcomingCard';
 import { api } from './api';
 import { daysUntil, fromInputBirthDate, getAge, toInputBirthDate } from './date';
@@ -116,8 +118,7 @@ export function App() {
     setIsSheetOpen(true);
   }
 
-  async function submitForm(event: FormEvent) {
-    event.preventDefault();
+  async function submitForm() {
     setFormError('');
     const payload = {
       ...form,
@@ -153,12 +154,9 @@ export function App() {
     <main className="app-shell min-h-screen overflow-hidden text-white">
       <AnimatedLiquidBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-36 pt-[max(22px,env(safe-area-inset-top))]">
+      <div className={`relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-36 pt-[max(22px,env(safe-area-inset-top))] app-content ${isSheetOpen ? 'modal-open' : ''}`}>
         <header className="top-bar">
-          <div className="memora-mark" aria-label="Memora">
-            <span>M</span>
-            <i />
-          </div>
+          <LogoAvatar />
           <div className="brand-signature" aria-label="Memora signature">
             <strong>@memorahqbot</strong>
             <span>NTNQ X CODEX</span>
@@ -226,54 +224,18 @@ export function App() {
 
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} onCreate={openCreate} />
 
-      {isSheetOpen && (
-        <div className="sheet-backdrop">
-          <form className="sheet glass-panel" onSubmit={submitForm}>
-            <div className="sheet-title">
-              <h2>{editing ? 'Редактировать' : 'Новый родственник'}</h2>
-              <button type="button" className="round-action round-action-small" onClick={() => setIsSheetOpen(false)} aria-label="Закрыть">
-                <X size={19} />
-              </button>
-            </div>
-
-            <label>
-              Имя
-              <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Например, Анна" />
-            </label>
-            <label>
-              Степень родства
-              <input required value={form.relation} onChange={(event) => setForm({ ...form, relation: event.target.value })} placeholder="Мама, брат, бабушка" />
-            </label>
-            <label>
-              Дата рождения
-              <input required type="date" value={form.birth_date} onChange={(event) => setForm({ ...form, birth_date: event.target.value })} />
-            </label>
-            <label className="toggle-row">
-              <input type="checkbox" checked={yearKnown} onChange={(event) => setYearKnown(event.target.checked)} />
-              Год рождения известен
-            </label>
-            <label>
-              Заметка
-              <textarea value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} placeholder="Что важно помнить" />
-            </label>
-            <label>
-              Идея подарка
-              <textarea value={form.gift_idea} onChange={(event) => setForm({ ...form, gift_idea: event.target.value })} placeholder="Что можно подарить" />
-            </label>
-
-            {formError && <p className="form-error">{formError}</p>}
-
-            <div className="form-actions">
-              {editing && (
-                <button type="button" className="danger-button" onClick={() => removeBirthday(editing.id)} aria-label="Удалить">
-                  <Trash2 size={18} />
-                </button>
-              )}
-              <button className="save-button" type="submit">{editing ? 'Сохранить' : 'Добавить'}</button>
-            </div>
-          </form>
-        </div>
-      )}
+      <AddRelativeModal
+        editing={editing}
+        error={formError}
+        form={form}
+        isOpen={isSheetOpen}
+        yearKnown={yearKnown}
+        onClose={() => setIsSheetOpen(false)}
+        onDelete={removeBirthday}
+        onFormChange={setForm}
+        onSubmit={submitForm}
+        onYearKnownChange={setYearKnown}
+      />
     </main>
   );
 }
