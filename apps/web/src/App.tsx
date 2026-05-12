@@ -1,11 +1,11 @@
-import { BellRing, Gift, MoreHorizontal, Search, Sparkles } from 'lucide-react';
-import type { Ref } from 'react';
+import { Gift, MoreHorizontal, Search, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AddRelativeModal } from './AddRelativeModal';
 import { AnimatedLiquidBackground } from './AnimatedLiquidBackground';
 import { BottomNavigation, type AppTab } from './BottomNavigation';
 import { CalendarCard } from './CalendarCard';
 import { LogoAvatar } from './LogoAvatar';
+import { MoreMenu, isTestReminderEnabled } from './MoreMenu';
 import { UpcomingCard } from './UpcomingCard';
 import { api } from './api';
 import { daysUntil, fromInputBirthDate, getAge, toInputBirthDate } from './date';
@@ -63,35 +63,10 @@ function getDayWord(days: number) {
   return 'дней';
 }
 
-const isTestReminderEnabled = import.meta.env.VITE_ENABLE_TEST_REMINDER === 'true';
-
 type ToastState = {
   text: string;
   tone: 'success' | 'error';
 } | null;
-
-function MoreMenu({
-  isOpen,
-  isSending,
-  menuRef,
-  onSendTestReminder
-}: {
-  isOpen: boolean;
-  isSending: boolean;
-  menuRef: Ref<HTMLDivElement>;
-  onSendTestReminder: () => void;
-}) {
-  if (!isOpen || !isTestReminderEnabled) return null;
-
-  return (
-    <div className="glass-dropdown" ref={menuRef}>
-      <button className="glass-dropdown-item" onClick={onSendTestReminder} disabled={isSending}>
-        <BellRing size={18} />
-        <span>{isSending ? 'Отправляю...' : 'Тестовое напоминание'}</span>
-      </button>
-    </div>
-  );
-}
 
 export function App() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
@@ -273,24 +248,26 @@ export function App() {
             <button className="round-action" aria-label="Поиск">
               <Search size={23} />
             </button>
-            <div className="more-menu-anchor">
-              <button
-                className="round-action"
-                ref={moreButtonRef}
-                aria-expanded={isMoreMenuOpen}
-                aria-haspopup="menu"
-                aria-label="Меню"
-                onClick={() => setIsMoreMenuOpen((current) => !current)}
-              >
-                <MoreHorizontal size={25} />
-              </button>
-              <MoreMenu
-                isOpen={isMoreMenuOpen}
-                isSending={isSendingTestReminder}
-                menuRef={moreMenuRef}
-                onSendTestReminder={sendTestReminder}
-              />
-            </div>
+            {isTestReminderEnabled && (
+              <div className="more-menu-anchor">
+                <button
+                  className="round-action"
+                  ref={moreButtonRef}
+                  aria-expanded={isMoreMenuOpen}
+                  aria-haspopup="menu"
+                  aria-label="Меню"
+                  onClick={() => setIsMoreMenuOpen((current) => !current)}
+                >
+                  <MoreHorizontal size={25} />
+                </button>
+                <MoreMenu
+                  isOpen={isMoreMenuOpen}
+                  isSending={isSendingTestReminder}
+                  menuRef={moreMenuRef}
+                  onSendTestReminder={sendTestReminder}
+                />
+              </div>
+            )}
           </div>
         </header>
 

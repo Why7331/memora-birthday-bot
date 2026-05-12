@@ -1,11 +1,14 @@
-import { Router } from 'express';
+import { Router, type NextFunction, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { requireTelegramUser } from './authMiddleware.js';
-import { query, type Birthday } from './db.js';
 import { sortByNextBirthday } from './birthdayUtils.js';
 import { bot, sendBotTyping } from './bot.js';
+import { query, type Birthday } from './db.js';
 
 const router = Router();
+
+const TEST_REMINDER_ERROR = 'Не удалось отправить тестовое напоминание';
+const TEST_REMINDER_MESSAGE = '🎂 Сегодня день рождения у Мама\n\nОн/Она ждёт вашего внимания.\nНе забудьте поздравить ✨';
 
 const birthdaySchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -15,18 +18,15 @@ const birthdaySchema = z.object({
   gift_idea: z.string().trim().max(500).optional().nullable()
 });
 
-async function sendTestReminder(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) {
+async function sendTestReminder(req: Request, res: Response, next: NextFunction) {
   try {
     if (!bot || !req.currentUser?.telegram_id) {
-      return res.status(503).json({ error: 'Не удалось отправить тестовое напоминание' });
+      return res.status(503).json({ error: TEST_REMINDER_ERROR });
     }
 
     const chatId = Number(req.currentUser.telegram_id);
     await sendBotTyping(chatId);
-    await bot.telegram.sendMessage(
-      chatId,
-      '🎂 Сегодня день рождения у Мама\n\nОн/Она ждёт вашего внимания.\nНе забудьте поздравить ✨'
-    );
+    await bot.telegram.sendMessage(chatId, TEST_REMINDER_MESSAGE);
 
     res.json({ ok: true });
   } catch (error) {
@@ -36,7 +36,6 @@ async function sendTestReminder(req: import('express').Request, res: import('exp
 
 router.post('/test-reminder', requireTelegramUser, sendTestReminder);
 router.use('/api', requireTelegramUser);
-
 router.post('/api/test-reminder', sendTestReminder);
 
 router.get('/api/me', (req, res) => {
