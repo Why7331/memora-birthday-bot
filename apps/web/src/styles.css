@@ -596,6 +596,7 @@ button {
   width: 100%;
   min-width: 0;
   overflow: hidden;
+  contain: layout paint;
   border: 1px solid rgba(181, 207, 229, 0.18);
   border-radius: 32px;
   background:
@@ -1918,6 +1919,112 @@ textarea {
   .calendar-day {
     min-height: 31px;
     font-size: 14px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse), (max-width: 540px) {
+  .liquid-background {
+    transform: translateZ(0);
+  }
+
+  .wave-field-b,
+  .glow-curve-b,
+  .glow-curve-c,
+  .depth-haze-b,
+  .ambient-line {
+    display: none;
+  }
+
+  .wave-field {
+    inset: -12%;
+    opacity: 0.48;
+    filter: blur(14px);
+  }
+
+  .depth-haze {
+    filter: blur(22px);
+    opacity: 0.38;
+  }
+
+  .glow-curve {
+    opacity: 0.34;
+    box-shadow: none;
+  }
+
+  .wallpaper-grain {
+    opacity: 0.1;
+    background-size: 120px 120px, 160px 160px;
+  }
+
+  .logo-avatar,
+  .round-action,
+  .glass-panel,
+  .bottom-tray,
+  .nav-create,
+  .glass-dropdown,
+  .toast-message,
+  .modal-scrim,
+  .add-relative-sheet,
+  .glass-field input,
+  .glass-field textarea,
+  .glass-date-field,
+  .glass-toggle {
+    backdrop-filter: blur(14px) saturate(1.25);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  }
+
+  .glass-panel,
+  .bottom-tray,
+  .add-relative-sheet {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 16px 42px rgba(0, 0, 0, 0.28);
+  }
+
+  .app-content.modal-open {
+    filter: none;
+    opacity: 0.82;
+    transform: scale(0.99);
+  }
+
+  .logo-avatar,
+  .logo-avatar i,
+  .logo-waves,
+  .floating-panel,
+  .sheet-liquid-reflection::before,
+  .sheet-liquid-reflection::after,
+  .liquid-button::before {
+    animation: none;
+  }
+
+  .logo-waves,
+  .sheet-liquid-reflection {
+    display: none;
+  }
+
+  .spotlight-orb {
+    filter: none;
+    opacity: 0.46;
+  }
+
+  .month-title svg,
+  .gift-suggestion svg,
+  .nav-item.active svg,
+  .nav-create svg,
+  .glass-dropdown-item svg {
+    filter: none;
+  }
+
+  .calendar-day.today span {
+    box-shadow:
+      0 0 0 3px rgba(78, 219, 255, 0.08),
+      inset 0 0 14px rgba(72, 218, 255, 0.14);
+  }
+
+  .nav-create {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 12px 26px rgba(0, 0, 0, 0.32);
   }
 }
 
