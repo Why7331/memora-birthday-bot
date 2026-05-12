@@ -3,6 +3,18 @@ import type { Birthday, BirthdayForm, Me } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 
+function normalizeApiError(response: Response, message: string) {
+  if (
+    response.status === 401 ||
+    message.includes('Invalid Telegram WebApp initData') ||
+    message.includes('Откройте Memora через Telegram')
+  ) {
+    return 'Откройте Memora через Telegram';
+  }
+
+  return message || 'Что-то пошло не так. Попробуйте открыть приложение ещё раз.';
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
@@ -23,7 +35,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('API не отвечает. Проверь, что npm.cmd run dev запущен и backend работает на localhost:3000.');
+      throw new Error('Что-то пошло не так. Попробуйте открыть приложение ещё раз.');
     }
     throw error;
   } finally {
@@ -31,8 +43,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || `Request failed with ${response.status}`);
+    const rawMessage = await response.text();
+    let message = rawMessage;
+
+    try {
+      const parsed = JSON.parse(rawMessage) as { error?: string };
+      message = parsed.error ?? rawMessage;
+    } catch {
+      message = rawMessage;
+    }
+
+    throw new Error(normalizeApiError(response, message));
   }
 
   if (response.status === 204) return undefined as T;

@@ -40,7 +40,7 @@ function getInitialDarkMode() {
 
 function isTelegramAuthError(error: unknown) {
   if (!(error instanceof Error)) return false;
-  return error.message.includes('Invalid Telegram WebApp initData');
+  return error.message.includes('Invalid Telegram WebApp initData') || error.message.includes('Откройте Memora через Telegram');
 }
 
 function getRandomGiftIdea() {
@@ -125,7 +125,7 @@ export function App() {
       if (isTelegramAuthError(requestError)) {
         if (import.meta.env.DEV) console.error(requestError);
       } else {
-        setError(requestError instanceof Error ? requestError.message : 'Не удалось загрузить данные');
+        setError(requestError instanceof Error ? requestError.message : 'Что-то пошло не так. Попробуйте открыть приложение ещё раз.');
       }
     } finally {
       setIsLoading(false);
@@ -174,9 +174,9 @@ export function App() {
     } catch (requestError) {
       if (isTelegramAuthError(requestError)) {
         if (import.meta.env.DEV) console.error(requestError);
-        setFormError('Откройте приложение через Telegram');
+        setFormError('Откройте Memora через Telegram');
       } else {
-        setFormError(requestError instanceof Error ? requestError.message : 'Не удалось сохранить запись');
+        setFormError(requestError instanceof Error ? requestError.message : 'Что-то пошло не так. Попробуйте открыть приложение ещё раз.');
       }
     }
   }

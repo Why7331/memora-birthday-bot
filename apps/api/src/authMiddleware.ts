@@ -40,7 +40,7 @@ export async function requireTelegramUser(req: Request, res: Response, next: Nex
       return next();
     }
 
-    return res.status(401).json({ error: 'Invalid Telegram WebApp initData' });
+    return res.status(401).json({ error: 'Откройте Memora через Telegram' });
   } catch (error) {
     return next(error);
   }

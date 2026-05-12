@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireTelegramUser } from './authMiddleware.js';
 import { query, type Birthday } from './db.js';
 import { sortByNextBirthday } from './birthdayUtils.js';
+import { bot, sendBotTyping } from './bot.js';
 
 const router = Router();
 
@@ -52,7 +53,18 @@ router.post('/api/birthdays', async (req, res, next) => {
       ]
     );
 
-    res.status(201).json({ birthday: result.rows[0] });
+    const birthday = result.rows[0];
+
+    if (bot && req.currentUser?.telegram_id) {
+      const chatId = Number(req.currentUser.telegram_id);
+      await sendBotTyping(chatId);
+      await bot.telegram.sendMessage(
+        chatId,
+        `${birthday.name} добавлен(а) ✨\n\nТеперь Memora напомнит о дне рождения вовремя.`
+      ).catch(() => undefined);
+    }
+
+    res.status(201).json({ birthday });
   } catch (error) {
     next(error);
   }
@@ -86,7 +98,7 @@ router.put('/api/birthdays/:id', async (req, res, next) => {
       ]
     );
 
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Birthday not found' });
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Запись не найдена' });
     res.json({ birthday: result.rows[0] });
   } catch (error) {
     next(error);
@@ -100,7 +112,7 @@ router.delete('/api/birthdays/:id', async (req, res, next) => {
       [Number(req.params.id), req.currentUser!.id]
     );
 
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Birthday not found' });
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Запись не найдена' });
     res.status(204).send();
   } catch (error) {
     next(error);

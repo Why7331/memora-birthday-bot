@@ -23,8 +23,8 @@ export function UpcomingCard({ birthdays, upcoming, isLoading, onCreate, onEdit 
       {!isLoading && birthdays.length === 0 && (
         <div className="empty-state">
           <CalendarDays size={48} />
-          <strong>Здесь будут ближайшие события</strong>
-          <p>Добавьте первый день рождения, чтобы начать</p>
+          <strong>Пока здесь пусто ✨</strong>
+          <p>Добавьте первый день рождения, и Memora напомнит о нём вовремя.</p>
           <button className="empty-action" onClick={onCreate}>
             <Gift size={23} />
             <span>Добавить первый день рождения</span>

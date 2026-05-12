@@ -38,7 +38,7 @@ if (webDist) {
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(error);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ error: 'Что-то пошло не так. Попробуйте открыть приложение ещё раз.' });
 });
 
 await migrate();
