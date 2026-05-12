@@ -794,6 +794,29 @@ button {
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
+.birthday-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 38px;
+  overflow: hidden;
+}
+
+.birthday-row > .min-w-0 {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.birthday-row h3,
+.birthday-row p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birthday-row .round-action-tiny {
+  justify-self: end;
+}
+
 .date-pill,
 .avatar-initial {
   display: grid;
@@ -819,7 +842,11 @@ button {
 }
 
 .date-pill span {
-  font-size: 11px;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
   text-transform: uppercase;
 }
 
