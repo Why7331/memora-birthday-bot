@@ -19,6 +19,14 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -38,6 +46,9 @@ button {
 
 .app-shell {
   position: relative;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   isolation: isolate;
   background:
     radial-gradient(circle at 50% -10%, rgba(29, 68, 96, 0.28), transparent 34%),
@@ -220,6 +231,8 @@ button {
 }
 
 .app-content {
+  min-width: 0;
+  max-width: 100vw;
   transition: filter 360ms ease, opacity 360ms ease, transform 360ms ease;
 }
 
@@ -385,6 +398,8 @@ button {
 
 .screen-stack {
   display: grid;
+  min-width: 0;
+  width: 100%;
   gap: 18px;
 }
 
@@ -514,6 +529,9 @@ button {
 }
 
 .glass-panel {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid rgba(181, 207, 229, 0.18);
   border-radius: 32px;
   background:
@@ -543,11 +561,13 @@ button {
 }
 
 .calendar-card-header {
+  gap: 12px;
   margin-bottom: 22px;
 }
 
 .month-title {
   display: inline-flex;
+  min-width: 0;
   align-items: center;
   gap: 10px;
   background: transparent;
@@ -563,6 +583,7 @@ button {
 }
 
 .month-actions {
+  flex: 0 0 auto;
   display: flex;
   gap: 10px;
 }
@@ -571,6 +592,7 @@ button {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  min-width: 0;
 }
 
 .weekday-grid {
@@ -593,6 +615,7 @@ button {
   position: relative;
   display: grid;
   min-height: 39px;
+  min-width: 0;
   place-items: center;
   border-radius: 999px;
   background: transparent;
@@ -650,6 +673,8 @@ button {
 
 .upcoming-card,
 .people-card {
+  width: 100%;
+  min-width: 0;
   min-height: min(48vh, 520px);
   padding: 24px 20px;
 }
@@ -847,7 +872,8 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) clamp(68px, 20vw, 84px) minmax(0, 1fr);
   align-items: end;
-  width: min(100%, 410px);
+  width: min(calc(100vw - 20px), 410px);
+  max-width: calc(100vw - 20px);
   min-height: 78px;
   border: 1px solid rgba(188, 211, 231, 0.22);
   border-radius: 30px;
@@ -953,6 +979,7 @@ button {
 .add-relative-sheet {
   position: relative;
   width: min(100%, 430px);
+  max-width: calc(100vw - 24px);
   max-height: calc(100vh - 24px);
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1644,11 +1671,57 @@ textarea {
   .calendar-card,
   .upcoming-card,
   .people-card {
-    padding-inline: 16px;
+    padding-inline: 14px;
+  }
+
+  .calendar-card {
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+
+  .calendar-card-header {
+    margin-bottom: 16px;
   }
 
   .month-title {
-    font-size: 22px;
+    gap: 8px;
+    font-size: 19px;
+  }
+
+  .month-title svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .month-actions {
+    gap: 7px;
+  }
+
+  .round-action-small {
+    width: 42px;
+    height: 42px;
+  }
+
+  .weekday-grid {
+    font-size: 11px;
+  }
+
+  .weekday-grid div {
+    padding: 7px 0;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .calendar-day {
+    min-height: 34px;
+    font-size: 15px;
+  }
+
+  .calendar-day.today span {
+    width: 33px;
+    height: 33px;
   }
 
   .bottom-tray {
@@ -1672,6 +1745,28 @@ textarea {
   .nav-item svg {
     width: 23px;
     height: 23px;
+  }
+}
+
+@media (max-width: 340px) {
+  .calendar-card,
+  .upcoming-card,
+  .people-card {
+    padding-inline: 12px;
+  }
+
+  .month-title {
+    font-size: 17px;
+  }
+
+  .round-action-small {
+    width: 38px;
+    height: 38px;
+  }
+
+  .calendar-day {
+    min-height: 31px;
+    font-size: 14px;
   }
 }
 
