@@ -902,11 +902,12 @@ button {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 13px;
+  margin-top: 16px;
 }
 
-.glass-field {
+.glass-field,
+.glass-date-field {
   position: relative;
   display: grid;
   margin: 0;
@@ -914,7 +915,8 @@ button {
 }
 
 .glass-field input,
-.glass-field textarea {
+.glass-field textarea,
+.glass-date-field {
   min-height: 58px;
   border: 1px solid rgba(197, 225, 247, 0.13);
   border-radius: 22px;
@@ -932,12 +934,19 @@ button {
   -webkit-backdrop-filter: blur(18px);
 }
 
+.glass-date-field {
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  padding: 22px 16px 10px;
+}
+
 .glass-field textarea {
   min-height: 92px;
   resize: vertical;
 }
 
-.glass-field span {
+.glass-field span,
+.glass-date-field span {
   position: absolute;
   left: 16px;
   top: 18px;
@@ -949,7 +958,8 @@ button {
   transition: transform 190ms ease, color 190ms ease, opacity 190ms ease;
 }
 
-.glass-field i {
+.glass-field i,
+.glass-date-field i {
   position: absolute;
   inset: -1px;
   border-radius: 22px;
@@ -959,7 +969,8 @@ button {
 }
 
 .glass-field:focus-within input,
-.glass-field:focus-within textarea {
+.glass-field:focus-within textarea,
+.glass-date-field:focus-within {
   border-color: rgba(103, 231, 255, 0.56);
   background:
     radial-gradient(circle at 15% 0%, rgba(103, 231, 255, 0.13), transparent 40%),
@@ -973,17 +984,40 @@ button {
 }
 
 .glass-field:focus-within span,
-.glass-field.has-value span {
+.glass-field.has-value span,
+.glass-date-field span {
   color: rgba(103, 231, 255, 0.82);
   transform: translateY(-9px) scale(0.78);
 }
 
-.glass-field:focus-within i {
+.glass-field:focus-within i,
+.glass-date-field:focus-within i {
   box-shadow: 0 0 32px rgba(103, 231, 255, 0.13);
 }
 
-.glass-field input[type="date"] {
-  color-scheme: dark;
+.glass-date-field input {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.glass-date-field strong {
+  min-width: 0;
+  color: rgba(248, 252, 255, 0.96);
+  font-size: 16px;
+  font-weight: 820;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.glass-date-field svg {
+  color: rgba(230, 242, 255, 0.72);
+  filter: drop-shadow(0 0 8px rgba(103, 231, 255, 0.18));
 }
 
 label {

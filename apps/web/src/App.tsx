@@ -13,7 +13,7 @@ import type { Birthday, BirthdayForm } from './types';
 
 const emptyForm: BirthdayForm = {
   name: '',
-  relation: '',
+  relation: 'Родственник',
   birth_date: new Date().toISOString().slice(0, 10),
   note: '',
   gift_idea: ''
@@ -122,6 +122,7 @@ export function App() {
     setFormError('');
     const payload = {
       ...form,
+      relation: form.relation.trim() || 'Родственник',
       birth_date: fromInputBirthDate(form.birth_date, yearKnown)
     };
 

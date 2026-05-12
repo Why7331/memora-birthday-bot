@@ -1,5 +1,6 @@
 import { Trash2, X } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+import { GlassDateInput } from './GlassDateInput';
 import { GlassInput } from './GlassInput';
 import { GlassToggle } from './GlassToggle';
 import { LiquidButton } from './LiquidButton';
@@ -81,16 +82,9 @@ export function AddRelativeModal({
             value={form.name}
             onChange={(value) => onFormChange({ ...form, name: value })}
           />
-          <GlassInput
-            required
-            label="Степень родства"
-            value={form.relation}
-            onChange={(value) => onFormChange({ ...form, relation: value })}
-          />
-          <GlassInput
+          <GlassDateInput
             required
             label="Дата рождения"
-            type="date"
             value={form.birth_date}
             onChange={(value) => onFormChange({ ...form, birth_date: value })}
           />
