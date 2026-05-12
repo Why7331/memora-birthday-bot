@@ -1,4 +1,4 @@
-import { Gift, MoreHorizontal, Search } from 'lucide-react';
+import { Gift, MoreHorizontal, Search, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { AddRelativeModal } from './AddRelativeModal';
 import { AnimatedLiquidBackground } from './AnimatedLiquidBackground';
@@ -19,6 +19,19 @@ const emptyForm: BirthdayForm = {
   gift_idea: ''
 };
 
+const randomGiftIdeas = [
+  'Набор хорошего чая и открытка с личным пожеланием',
+  'Сертификат на уютный ужин или любимое кафе',
+  'Фотокнига с общими моментами',
+  'Небольшой гаджет для дома или рабочего стола',
+  'Билет на концерт, спектакль или выставку',
+  'Подарочный бокс с любимыми сладостями',
+  'Книга с подписью на первой странице',
+  'День без забот: доставка, цветы и приятный сюрприз',
+  'Украшение или аксессуар в любимом стиле',
+  'Совместная прогулка, впечатление или мини-путешествие'
+];
+
 function getInitialDarkMode() {
   const tgScheme = getTelegramWebApp()?.colorScheme;
   if (tgScheme) return tgScheme === 'dark';
@@ -30,11 +43,31 @@ function isTelegramAuthError(error: unknown) {
   return error.message.includes('Invalid Telegram WebApp initData');
 }
 
+function getRandomGiftIdea() {
+  return randomGiftIdeas[Math.floor(Math.random() * randomGiftIdeas.length)];
+}
+
+function formatUntilLabel(until: number) {
+  if (until === 0) return 'Сегодня';
+  if (until === 1) return 'Завтра';
+  return `Через ${until} ${getDayWord(until)}`;
+}
+
+function getDayWord(days: number) {
+  const lastTwo = days % 100;
+  const last = days % 10;
+  if (lastTwo >= 11 && lastTwo <= 14) return 'дней';
+  if (last === 1) return 'день';
+  if (last >= 2 && last <= 4) return 'дня';
+  return 'дней';
+}
+
 export function App() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [month, setMonth] = useState(() => new Date());
   const [activeTab, setActiveTab] = useState<AppTab>('calendar');
   const [isDark, setIsDark] = useState(getInitialDarkMode);
+  const [dailyGiftIdea] = useState(getRandomGiftIdea);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Birthday | null>(null);
   const [form, setForm] = useState<BirthdayForm>(emptyForm);
@@ -79,6 +112,9 @@ export function App() {
     () => [...birthdays].sort((a, b) => a.name.localeCompare(b.name, 'ru')),
     [birthdays]
   );
+
+  const spotlightBirthday = upcoming[0];
+  const spotlightDays = spotlightBirthday ? daysUntil(spotlightBirthday.birth_date) : null;
 
   async function loadBirthdays() {
     try {
@@ -176,6 +212,39 @@ export function App() {
 
         {activeTab === 'calendar' ? (
           <div className="screen-stack">
+            <section className="glass-panel spotlight-card floating-panel">
+              <div className="spotlight-orb" />
+              <div className="spotlight-kicker">
+                <Sparkles size={17} />
+                <span>Ближайший праздник</span>
+              </div>
+
+              {spotlightBirthday ? (
+                <>
+                  <div className="spotlight-main">
+                    <p>{formatUntilLabel(spotlightDays ?? 0)}</p>
+                    <h1>{spotlightBirthday.name}</h1>
+                    <span>{spotlightBirthday.relation}</span>
+                  </div>
+                  <div className="gift-suggestion">
+                    <Gift size={18} />
+                    <span>Идея подарка: {dailyGiftIdea}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="spotlight-main">
+                    <p>Пока календарь свободен</p>
+                    <h1>Добавьте первый день рождения</h1>
+                    <span>Memora подскажет, когда пора готовить подарок</span>
+                  </div>
+                  <button className="spotlight-cta" onClick={openCreate}>
+                    <Gift size={18} />
+                    <span>Добавить праздник</span>
+                  </button>
+                </>
+              )}
+            </section>
             <CalendarCard
               birthdays={birthdays}
               month={month}
