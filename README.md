@@ -289,6 +289,30 @@ https://имя-сервиса.onrender.com
 
 Ограничение бесплатного Render: сервис может засыпать после простоя, поэтому напоминания на free-тарифе не гарантированы идеально. Для MVP и проверки Mini App этого достаточно.
 
+## Автодеплой на свой сервер
+
+Проект содержит:
+
+- `ecosystem.config.cjs` для запуска через PM2;
+- `.github/workflows/deploy.yml` для автодеплоя через GitHub Actions.
+
+На сервере приложение должно лежать в:
+
+```text
+/opt/memora-birthday-bot
+```
+
+После каждого push в `master` GitHub Actions подключается к серверу по SSH и выполняет:
+
+```bash
+git fetch origin master
+git reset --hard origin/master
+npm install
+npm run build
+pm2 startOrReload ecosystem.config.cjs --update-env
+pm2 save
+```
+
 ## Можно ли хостить на своем ПК
 
 Да, можно. Но Telegram Mini App не умеет открывать `localhost`, поэтому твой ПК должен быть доступен из интернета по постоянной HTTPS-ссылке.
