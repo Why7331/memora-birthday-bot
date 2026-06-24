@@ -165,12 +165,6 @@ This project demonstrates:
 
 ## Screenshots
 
-Screenshots can be added here after the production Mini App UI is finalized.
-
-Suggested files:
-
-```text
-docs/images/calendar.png
-docs/images/add-birthday.png
-docs/images/reminder.png
-```
+| Main screen | Calendar | Add relative |
+| --- | --- | --- |
+| <img src="docs/images/home.jpg" alt="Memora main screen" width="240"> | <img src="docs/images/calendar.jpg" alt="Memora calendar" width="240"> | <img src="docs/images/add-relative.jpg" alt="Memora add relative form" width="240"> |
