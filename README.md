@@ -1,376 +1,176 @@
-# Family Birthday Calendar
+# Memora Birthday Bot
 
-MVP Telegram-бота и Telegram Mini App для календаря дней рождения родственников.
+Telegram bot and Telegram Mini App for storing family birthdays and sending reminders.
 
-Стек:
+The project is an MVP of a small personal productivity service: a user opens the Mini App from Telegram, adds relatives and important dates, and receives a Telegram reminder on the birthday date.
 
-- Frontend: React + Vite + TypeScript + Tailwind CSS
-- Backend: Node.js + TypeScript + Express
-- Bot: Telegraf
-- Database: PostgreSQL, Neon подходит для бесплатного MVP
+## Why this project exists
+
+Memora was built as a practical full-stack project with a real user flow, not only as a code example. It combines a Telegram bot, web interface, backend API, PostgreSQL database, scheduled jobs, environment configuration, and deployment notes.
+
+## Tech Stack
+
+- Frontend: React, Vite, TypeScript, Tailwind CSS
+- Backend: Node.js, TypeScript, Express
+- Telegram: Telegraf, Telegram Mini App
+- Database: PostgreSQL, Neon-ready configuration
 - Scheduler: node-cron
+- Runtime and deploy: Render, PM2, GitHub Actions
 
-## Структура проекта
+## Features
 
-```text
-apps/
-  api/
-    src/
-      index.ts              # запуск API, Telegram-бота и scheduler
-      bot.ts                # команда /start и кнопка Mini App
-      routes.ts             # REST API
-      db.ts                 # PostgreSQL schema и подключение
-      telegramAuth.ts       # проверка Telegram WebApp initData
-      scheduler.ts          # ежедневные напоминания
-      seed.ts               # demo данные
-  web/
-    src/
-      App.tsx               # Mini App интерфейс
-      api.ts                # запросы к backend
-      telegram.ts           # Telegram WebApp helpers
-      date.ts               # календарная логика
-```
-
-## Что умеет MVP
-
-- `/start` в Telegram-боте.
-- Кнопка открытия Telegram Mini App.
-- Проверка Telegram `initData` на backend.
-- Пользователь видит только свои дни рождения.
-- REST API:
+- `/start`, `/help`, and `/app` commands in the Telegram bot
+- Telegram Mini App launch button and menu button
+- Telegram WebApp `initData` verification on the backend
+- User-specific data isolation by Telegram user id
+- REST API for birthdays:
   - `GET /api/me`
   - `GET /api/birthdays`
   - `POST /api/birthdays`
   - `PUT /api/birthdays/:id`
   - `DELETE /api/birthdays/:id`
-- Добавление, редактирование и удаление родственников.
-- Месячный календарь в стиле iOS Calendar.
-- Список ближайших дней рождения.
-- Ежедневная проверка базы и отправка напоминаний день в день.
-- Если год рождения неизвестен, возраст не показывается.
+- Add, edit, and delete birthday records
+- Monthly calendar view
+- Upcoming birthdays list
+- Optional notes and gift ideas
+- Daily cron check and Telegram reminders
+- `sent_reminders` table to avoid duplicate reminders for the same day
+- Health check endpoint for hosting platforms
 
-## Как запустить локально
+## Project Structure
 
-### 1. Установи Node.js
-
-Нужен Node.js версии 22.5 или новее. На твоей машине уже виден Node.js 24, он подходит.
-
-Проверить:
-
-```bash
-node -v
-npm -v
+```text
+apps/
+  api/
+    src/
+      index.ts              # Express API, static Mini App serving, bot startup, scheduler startup
+      bot.ts                # Telegram bot commands and Mini App buttons
+      routes.ts             # REST API routes and validation
+      db.ts                 # PostgreSQL connection, schema migration, user upsert
+      telegramAuth.ts       # Telegram WebApp initData verification
+      authMiddleware.ts     # Request authentication through Telegram initData
+      scheduler.ts          # Daily birthday reminder scheduler
+      birthdayUtils.ts      # Date helpers and sorting logic
+      seed.ts               # Demo data
+  web/
+    src/
+      App.tsx               # Main Mini App interface
+      api.ts                # Backend API client
+      telegram.ts           # Telegram WebApp helpers
+      date.ts               # Calendar and birthday date helpers
+      types.ts              # Shared frontend types
 ```
 
-Если PowerShell пишет, что `npm.ps1` нельзя загрузить, используй `npm.cmd` вместо `npm`.
+## Architecture
 
-Например:
+```text
+Telegram User
+    |
+    v
+Telegram Bot (Telegraf)
+    |
+    | opens
+    v
+React Telegram Mini App
+    |
+    | Authorization: tma <initData>
+    v
+Express API
+    |
+    v
+PostgreSQL / Neon
 
-```bash
-npm.cmd run seed
-npm.cmd run dev
+node-cron -> Express backend -> Telegram reminder message
 ```
 
-### 2. Установи зависимости
+More details: [docs/architecture.md](docs/architecture.md)
 
-В корневой папке проекта:
+## Local Development
 
-```bash
-npm install
-```
+Requirements:
 
-В PowerShell на Windows можно так:
+- Node.js 22.x or newer
+- npm
+- Telegram bot token from BotFather
+- PostgreSQL connection string, for example from Neon
 
-```bash
-npm.cmd install
-```
-
-### 3. Создай Telegram-бота
-
-1. Открой Telegram.
-2. Найди [@BotFather](https://t.me/BotFather).
-3. Отправь команду `/newbot`.
-4. BotFather выдаст токен вида `123456:ABC...`.
-
-### 4. Создай `.env`
-
-Скопируй пример:
+Copy the environment example:
 
 ```bash
 copy .env.example .env
 ```
 
-В Linux/macOS команда будет:
+Install dependencies:
 
 ```bash
-cp .env.example .env
+npm install
 ```
 
-Открой `.env` и вставь токен:
-
-```env
-BOT_TOKEN=сюда_вставь_токен_от_BotFather
-```
-
-Для команды `seed` токен не обязателен. Но для настоящего Telegram-бота и кнопки `/start` токен нужен.
-
-### 5. Добавь demo данные
+Seed demo data when needed:
 
 ```bash
 npm run seed
 ```
 
-Если PowerShell блокирует `npm`, запусти:
-
-```bash
-npm.cmd run seed
-```
-
-### 6. Запусти проект
+Run API and frontend in development mode:
 
 ```bash
 npm run dev
 ```
 
-Если PowerShell блокирует `npm`, запусти:
-
-```bash
-npm.cmd run dev
-```
-
-После запуска:
+Default local URLs:
 
 - API: `http://localhost:3000`
-- Web Mini App: `http://localhost:5173`
+- Web Mini App frontend: `http://localhost:5173`
 
-В обычном браузере можно открыть `http://localhost:5173`, но полноценная авторизация Mini App работает через Telegram.
+Full setup guide: [docs/setup.md](docs/setup.md)
 
-## Как подключить Mini App к Telegram
+## Deployment
 
-Telegram Mini App должен открываться по публичному HTTPS URL. `localhost` внутри Telegram не подойдет.
+The repository contains deployment configuration for two scenarios:
 
-Для разработки удобно использовать `localhost.run`. Регистрация не нужна.
+- Render + Neon for a simple hosted MVP
+- PM2 + GitHub Actions for deployment to a custom server
 
-Сначала собери frontend и запусти backend, который будет отдавать Mini App:
+Deployment notes: [docs/deploy.md](docs/deploy.md)
 
-```bash
-npm.cmd run telegram
-```
+## Environment Variables
 
-В отдельном терминале открой HTTPS-туннель на backend-порт `3000`:
+See [.env.example](.env.example).
 
-```bash
-npm.cmd run tunnel
-```
+Important variables:
 
-Туннель выдаст адрес вида:
+- `BOT_TOKEN` - Telegram bot token from BotFather
+- `WEB_APP_URL` - public HTTPS URL of the Mini App
+- `DATABASE_URL` - PostgreSQL connection string
+- `REMINDER_CRON` - reminder schedule in cron format
+- `TIMEZONE` - scheduler timezone
 
-```text
-https://your-name.lhr.life
-```
+## Security Notes
 
-В `.env` вставь этот адрес:
+- Secrets are not committed to the repository.
+- Telegram Mini App requests are authenticated through signed `initData`.
+- Birthday records are filtered by backend user id, not by a client-provided user id.
+- Duplicate daily reminders are prevented through the `sent_reminders` table.
 
-```env
-WEB_APP_URL=https://your-name.lhr.life
-```
+## Portfolio Notes
 
-После изменения `.env` перезапусти:
+This project demonstrates:
 
-```bash
-npm.cmd run telegram
-```
+- building a Telegram bot and Mini App flow;
+- connecting frontend, backend, database, and scheduled jobs;
+- working with environment variables and deployment configuration;
+- documenting setup and production usage;
+- preparing a small product-style MVP from idea to runnable application.
 
-Теперь команда `/start` в боте покажет кнопку открытия Mini App.
+## Screenshots
 
-## База данных Neon PostgreSQL
+Screenshots can be added here after the production Mini App UI is finalized.
 
-Для бесплатного постоянного хранения данных используй Neon.
-
-1. Создай проект на [Neon](https://neon.tech/).
-2. Открой блок **Connection string**.
-3. Нажми **Copy snippet**.
-4. Вставь строку в `.env`:
-
-```env
-DATABASE_URL=postgresql://user:password@host.neon.tech/dbname?sslmode=require
-```
-
-Важно: пароль должен быть внутри строки. Если в Neon включено **Hide password**, нажми **Show password** или скопируй snippet так, чтобы пароль был подставлен.
-
-Основные таблицы:
-
-- `users`
-  - `id`
-  - `telegram_id`
-  - `first_name`
-  - `username`
-  - `created_at`
-- `birthdays`
-  - `id`
-  - `user_id`
-  - `name`
-  - `relation`
-  - `birth_date`
-  - `note`
-  - `gift_idea`
-  - `created_at`
-  - `updated_at`
-
-Дополнительно есть таблица `sent_reminders`, чтобы не отправлять одно и то же напоминание несколько раз за день.
-
-Таблицы создаются автоматически при запуске backend.
-
-## Напоминания
-
-Scheduler запускается вместе с backend.
-
-Настройки в `.env`:
-
-```env
-REMINDER_CRON=0 9 * * *
-TIMEZONE=Europe/Moscow
-```
-
-Это значит: каждый день в 09:00 по московскому времени проверить дни рождения.
-
-## Важно про безопасность
-
-Frontend отправляет Telegram `initData` в заголовке:
+Suggested files:
 
 ```text
-Authorization: tma <initData>
+docs/images/calendar.png
+docs/images/add-birthday.png
+docs/images/reminder.png
 ```
-
-Backend пересчитывает hash через `BOT_TOKEN`. Если подпись неверная, API вернет `401`.
-
-Все запросы к дням рождения фильтруются по `user_id`, который backend получает из Telegram `user.id`. Поэтому один пользователь не может получить или изменить записи другого.
-
-## Production заметки
-
-Для реального деплоя нужно:
-
-- указать настоящий `WEB_APP_URL`;
-- указать `DATABASE_URL` от Neon;
-- собрать проект командой `npm.cmd run build`;
-- запустить backend как Node.js сервис.
-
-## Деплой на Render + Neon
-
-Это самый простой бесплатный вариант без белого IP.
-
-1. Создай Neon-проект и скопируй `DATABASE_URL`.
-2. Загрузи проект на GitHub.
-3. На Render создай **New Web Service** из GitHub-репозитория.
-4. Render может использовать файл `render.yaml` из корня проекта.
-5. Добавь Environment Variables:
-
-```env
-NODE_ENV=production
-BOT_TOKEN=токен_от_BotFather
-DATABASE_URL=postgresql://...
-WEB_APP_URL=https://имя-сервиса.onrender.com
-REMINDER_CRON=0 9 * * *
-TIMEZONE=Europe/Moscow
-```
-
-6. После первого деплоя Render даст постоянную HTTPS-ссылку вида:
-
-```text
-https://имя-сервиса.onrender.com
-```
-
-7. Эту ссылку вставь:
-
-- в Render env `WEB_APP_URL`;
-- в BotFather как Mini App URL.
-
-8. Перезапусти Render service.
-
-Ограничение бесплатного Render: сервис может засыпать после простоя, поэтому напоминания на free-тарифе не гарантированы идеально. Для MVP и проверки Mini App этого достаточно.
-
-## Автодеплой на свой сервер
-
-Проект содержит:
-
-- `ecosystem.config.cjs` для запуска через PM2;
-- `.github/workflows/deploy.yml` для автодеплоя через GitHub Actions.
-
-На сервере приложение должно лежать в:
-
-```text
-/opt/memora-birthday-bot
-```
-
-После каждого push в `master` GitHub Actions подключается к серверу по SSH и выполняет:
-
-```bash
-git fetch origin master
-git reset --hard origin/master
-npm install
-npm run build
-pm2 startOrReload ecosystem.config.cjs --update-env
-pm2 save
-```
-
-## Можно ли хостить на своем ПК
-
-Да, можно. Но Telegram Mini App не умеет открывать `localhost`, поэтому твой ПК должен быть доступен из интернета по постоянной HTTPS-ссылке.
-
-Есть 3 нормальных варианта:
-
-1. **Белый статический IP + домен**
-
-   Самый правильный вариант для домашнего хостинга.
-
-   Нужно:
-
-   - попросить у провайдера белый статический IP;
-   - купить или подключить домен;
-   - на роутере пробросить порты `80` и `443` на твой ПК;
-   - поставить reverse proxy, например Caddy или Nginx;
-   - получить HTTPS-сертификат.
-
-   В `.env` тогда будет:
-
-   ```env
-   WEB_APP_URL=https://your-domain.ru
-   ```
-
-2. **Белый динамический IP + DDNS**
-
-   Подходит, если IP белый, но иногда меняется.
-
-   Нужно:
-
-   - настроить DDNS-домен;
-   - пробросить порты `80` и `443`;
-   - настроить HTTPS через reverse proxy.
-
-3. **Постоянный tunnel**
-
-   Это проще, чем настраивать роутер, но бесплатные tunnel-ссылки обычно меняются.
-
-   Чтобы ссылка не менялась, нужен tunnel со статичным доменом. Обычно это требует аккаунт или платный тариф.
-
-Для запуска на своем ПК в production-режиме:
-
-```bash
-npm.cmd run build
-npm.cmd run start
-```
-
-После этого приложение работает на:
-
-```text
-http://localhost:3000
-```
-
-А наружу его должен отдавать HTTPS reverse proxy или постоянный tunnel.
-
-Важно:
-
-- ПК должен быть включен постоянно.
-- Интернет должен быть стабильным.
-- После перезагрузки ПК нужно снова запустить backend или настроить автозапуск.
-- `BOT_TOKEN` нельзя публиковать в скриншотах или чатах.
